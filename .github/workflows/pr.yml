@@ -1,30 +1,34 @@
 name: CI
+
 on:
-  pull_request:
+  push:
+    branches:
+      - main  # Triggers on push to main branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    name: Build image and deploy to minikube
+    name: Build image and deploy to Minikube
+
     steps:
-    - name: Checkout code
+    - name: ✅ Checkout code
       uses: actions/checkout@v4
 
-    - name: Start Minikube
+    - name: 🚀 Start Minikube
       uses: medyagh/setup-minikube@latest
 
-    - name: Test if cluster is working
+    - name: 🔍 Test if cluster is working
       run: kubectl get pods -A
 
-    - name: Build Docker image using Minikube
+    - name: 🐳 Build Docker image using Minikube
       run: minikube image build -t local/example:latest .
 
-    - name: Deploy app to Minikube
+    - name: 📦 Deploy app to Minikube
       run: |
         kubectl apply -f deploy/k8s.yaml
         kubectl wait --for=condition=ready pod -l app=example --timeout=120s
 
-    - name: Check service URL and curl it
+    - name: 🌐 Check service URL and curl it
       run: |
         minikube service list
         SERVICE_URL=$(minikube service example --url)
